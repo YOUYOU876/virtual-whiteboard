@@ -1,140 +1,153 @@
-# Virtual Whiteboard Using Computer Vision
+# Virtual Whiteboard
 
-This project creates a virtual whiteboard experience using a webcam and computer vision techniques. There are three implementations provided with increasing levels of sophistication:
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Python Version](https://img.shields.io/badge/python-3.10.x-blue)](https://www.python.org/downloads/)
+[![OpenCV](https://img.shields.io/badge/OpenCV-4.5%2B-green)](https://opencv.org/)
+[![MediaPipe](https://img.shields.io/badge/MediaPipe-0.8%2B-orange)](https://developers.google.com/mediapipe)
 
-1. **Basic Virtual Whiteboard**: Color-based pen detection with simple drawing capabilities
-2. **Enhanced Virtual Whiteboard**: Improved UI, multiple colors, eraser mode, and improved tracking
-3. **Advanced ML Virtual Whiteboard**: Uses MediaPipe for hand tracking and supports both hand and color-based detection modes
+A computer vision-powered virtual whiteboard that enables drawing in mid-air using gesture recognition and object tracking.
 
-## Requirements
+## Overview
 
-- Python 3.6+
-- OpenCV
-- NumPy
-- MediaPipe (for the ML version)
-
-Install the required packages:
-
-```bash
-pip install -r requirements.txt
-```
+Virtual Whiteboard transforms any webcam-equipped computer into an interactive drawing surface by detecting hand movements and a designated drawing object. The system tracks when your finger touches the object and renders strokes on a virtual canvas, creating a natural drawing experience without specialized hardware.
 
 ## Features
 
-- **Webcam Access**: Captures live video from your camera
-- **Pen Detection**:
-  - Color-based thresholding (all versions)
-  - MediaPipe hand tracking (ML version)
-- **Drawing Capabilities**:
-  - Virtual canvas overlay on camera feed
-  - Multiple color options
-  - Adjustable pen thickness
-  - Eraser mode
-- **Interactive Controls**:
-  - Keyboard shortcuts for all functions
-  - Gesture recognition (ML version)
-  - Color calibration for object tracking
-- **Save and Export**: Save your drawings as image files
+- **Dual-hand Operation**: Designated drawing and control hands with distinct functions
+- **Object Recognition**: Calibration system detects any physical object as a drawing tool
+- **Touch Detection**: Precise tracking of finger-to-object contact points
+- **Gesture Controls**:
+  - Index finger gesture for color selection
+  - Thumb gesture for stroke width adjustment
+- **Whiteboard Modes**: Toggle between camera overlay and full whiteboard views
+- **Writing Recognition**: Optional auto-correction of handwritten characters
+- **Export Options**: Save drawings as image files
 
-## Usage
+## Requirements
 
-### Basic Version
+- Python 3.10.x
+- OpenCV 4.5+
+- NumPy 1.20+
+- MediaPipe 0.8+
+
+## Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/barandev/virtual-whiteboard.git
+cd virtual-whiteboard
+
+# Create a virtual environment (optional but recommended)
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+## Quick Start
 
 ```bash
 python virtual_whiteboard.py
 ```
 
-### Enhanced Version
+On first run, the system will guide you through:
+1. Hand registration (drawing vs. control hand)
+2. Object calibration for drawing tool detection
 
-```bash
-python virtual_whiteboard_enhanced.py
-```
+## Usage
 
-### ML Version (Recommended)
+### Hand Registration
 
-```bash
-python virtual_whiteboard_ml.py
-```
+The system requires identification of your drawing and control hands:
+- **Drawing Hand**: Holds the object and draws with the index finger
+- **Control Hand**: Controls color/size selection via gestures
 
-## Controls
+### Object Calibration
 
-| Key | Function                           |
-| --- | ---------------------------------- |
-| c   | Clear the canvas                   |
-| s   | Save the current drawing           |
-| d   | Toggle drawing mode on/off         |
-| e   | Toggle eraser mode                 |
-| +/- | Increase/decrease pen/eraser size  |
-| 1-6 | Change drawing colors              |
-| m   | Switch detection mode (ML version) |
-| h   | Toggle help display (ML version)   |
-| q   | Quit the application               |
+Any object with a distinct color can be used as a drawing tool:
+1. Position object in the calibration frame
+2. System samples its color profile for reliable detection
+3. Default drawing color automatically matches the object
 
-## Calibration
+### Drawing Controls
 
-When starting the application, you'll be asked if you want to calibrate the pen color detection:
+| Action | Description |
+|--------|-------------|
+| Touch object with index finger | Begin drawing |
+| Release finger from object | Stop drawing |
+| Raise index finger (control hand) | Activate color selector |
+| Raise thumb (control hand) | Activate size selector |
+| Move control hand left/right | Change selected value |
 
-1. Choose 'y' to enter calibration mode
-2. Hold your pen/object in the green box in the center of the screen
-3. Press 'c' to capture the color
-4. Press 't' to test the calibration
-5. Press 'a' to accept or any other key to continue testing
-6. Press 'q' to exit calibration mode
+### Keyboard Shortcuts
 
-## ML Version Gestures
+| Key | Function |
+|-----|----------|
+| w | Toggle whiteboard mode |
+| c | Clear canvas |
+| s | Save drawing |
+| e | Toggle eraser mode |
+| r | Toggle writing recognition |
+| t | Adjust touch threshold |
+| b | Toggle debug display |
+| h | Toggle help overlay |
+| q | Quit application |
+| 1-8 | Select predefined colors |
+| 0 | Use calibrated object color |
+| +/- | Manual size adjustment |
 
-The ML version supports hand gesture recognition:
+## Technical Details
 
-- **Pinch gesture**: Pinch your thumb and middle finger together to clear the canvas
+### Detection System
 
-## Tips
+The application employs two primary detection methods:
+- **MediaPipe Hands**: Tracks hand landmarks and finger positions
+- **HSV Color Thresholding**: Identifies the calibrated drawing object
 
-- For best results with color detection, use a brightly colored object against a contrasting background
-- Good lighting conditions will improve detection quality
-- The ML version works best when your hand is clearly visible to the camera
-- If tracking is unstable, try recalibrating or adjusting lighting
+### Gesture Recognition
+
+Hand gestures are detected using landmark relationships:
+- **Index Finger Selection**: Extended index finger with other fingers curled
+- **Thumb Selection**: Extended thumb with other fingers curled
+
+### Touch Detection Algorithm
+
+Touch is registered when the distance between finger and object tips falls below a configurable threshold, with a stability filter to prevent jitter.
+
+### Writing Recognition
+
+The optional writing recognition system:
+1. Tracks completed strokes
+2. Normalizes stroke geometry
+3. Compares against character templates
+4. Renders clean characters when matches are found
 
 ## Project Structure
 
-- `virtual_whiteboard.py`: Basic implementation
-- `virtual_whiteboard_enhanced.py`: Enhanced implementation with better UI and features
-- `virtual_whiteboard_ml.py`: Advanced implementation with MediaPipe hand tracking
-- `requirements.txt`: Required Python packages
-- `whiteboard_captures/`: Directory where saved drawings are stored
+```
+virtual-whiteboard/
+├── virtual_whiteboard.py      # Main application
+├── requirements.txt           # Dependencies
+├── README.md                  # Documentation
+└── whiteboard_captures/       # Saved drawings
+```
 
-## How It Works
+## Contributing
 
-1. **Pen Detection**:
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-   - **Color-based**: Converts frame to HSV color space, applies color thresholding, finds contours, and identifies the pen tip
-   - **Hand tracking**: Uses MediaPipe to detect hand landmarks and tracks the index fingertip
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/X-feature`)
+3. Commit your changes (`git commit -m 'Add X feature'`)
+4. Push to the branch (`git push origin feature/X-feature`)
+5. Open a Pull Request
 
-2. **Drawing Mechanism**:
+## License
 
-   - Tracks pen position between frames
-   - Draws lines between consecutive points
-   - Applies smoothing to reduce jitter
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-3. **UI Rendering**:
-   - Overlays the virtual canvas on the camera feed
-   - Displays control instructions and color palette
-   - Shows visual feedback for the detected pen/finger
+## Acknowledgments
 
-## Extending the Project
-
-This project is designed to be modular and extensible. Here are some ideas for enhancements:
-
-- Add more drawing tools (shapes, fill, text)
-- Implement undo/redo functionality
-- Add network capabilities for collaborative whiteboarding
-- Create custom color picker
-- Add image import/export features
-- Implement different brush styles
-- Create an eraser that only erases specific colors
-
-## Troubleshooting
-
-- **No camera access**: Ensure your webcam is properly connected and not in use by another application
-- **Poor detection**: Try recalibrating the color detection or improving lighting conditions
-- **MediaPipe errors**: Ensure you have the correct version installed (see requirements.txt)
-- **Performance issues**: Lower the camera resolution in the code for better performance
+- OpenCV community for computer vision tools
+- MediaPipe team for hand tracking solutions
